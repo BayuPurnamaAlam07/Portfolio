@@ -62,4 +62,48 @@ with col3:
     #input untuk estimated salary ( number input )
     # min_value dan max_value sesuai dengan data yang dipakai untuk training
     estimated_salary = st.number_input("Estimated Salary", min_value=0, max_value=200000, value=50000)
+
+#buat submit botton
+submit_botton = st.button("submit")
+
+if submit_botton :
+    le_geography = encoder_geography.transform([geography])[0]
+    le_gender = encoder_gender.transform([gender])[0]
+
+    #merubah data input menjadi format sesuai dengan data yaitu 1 & 0
+    mapping = {
+        "Yes" : 1,
+        "No" : 0
+    }
+
+    has_cr_card = mapping[has_cr_card]
+    is_active_member = mapping[is_active_member]
+
+    input_data = pd.DataFrame({
+        "CreditScore": [credit_score],
+        "Geography": [le_geography],
+        "Gender": [le_gender],
+        "Age": [age],
+        "Tenure": [tenure],
+        "Balance": [balance],
+        "NumOfProducts": [num_of_products],
+        "HasCrCard": [has_cr_card],
+        "IsActiveMember": [is_active_member],
+        "EstimatedSalary": [estimated_salary]
+    })
+
+    data_scaled = scaler.transform(input_data)
+    prediction = model.predict(data_scaled)
+    result = prediction[0]
+    prediction_proba = model.predict_proba(data_scaled)
+
+    if result == 1:
+        st.success("The customer is likely to churn")
+        st.write(f"probability of churn : {prediction_proba[0][1]:.2f}")
+    else :
+        st.success("The customer is not likely to churn")
+        st.write(f"Probability of churn: {prediction_proba[0][0]:.2f}")
+        
+
+
     
